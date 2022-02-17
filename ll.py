@@ -14,6 +14,7 @@ if not os.path.exists(config_file):
     with open(config_file, "w") as f:
         f.write(json.dumps(get("https://raw.githubusercontent.com/HACKERqq420/ll/main/.config/ll/config.json"), indent=4))
         f.close()
+    print("Config file created. Please run again.")
 else:
     with open(config_file, "r") as f:
         config = json.load(f)
