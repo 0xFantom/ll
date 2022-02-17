@@ -3,64 +3,8 @@ import colorama
 import sys
 import json
 
+from requests import get
 from colr import color
-# from tabulate import tabulate
-
-default_config = {
-    "showHidden": True,
-    "showOver30chars": False,
-    "showIcons": True,
-    "showColors": True,
-    "style": "normal",
-    "colors": {
-        "py": "#4B8BBE",
-        "js": "#FFCE00",
-        "go": "#00B8D4",
-        "rb": "#FF0000",
-        "cs": "#569CD6",
-        "java": "#F5871F",
-        "php": "#4F5D95",
-        "html": "#E44D26",
-        "css": "#1572B6",
-        "sql": "#E7C547",
-        "sh": "#B82E2E",
-        "pl": "#0067A5",
-        "coffee": "#6F4E37",
-        "c": "#555555",
-        "cpp": "#C34E00",
-        "ps1": "#00A1FF",
-        "bat": "#A6E22E",
-        "xml": "#7F9FB6",
-        "json": "#F8C300",
-        "vim": "#199F4B",
-        "other": "#666666"
-    },
-    "chars": {
-        "py": "\ue235",
-        "js": "\ue718",
-        "go": "\ue626",
-        "rb": "\ue739",
-        "cs": "\uf81a",
-        "java": "\ue738",
-        "php": "\ue73d",
-        "html": "\ue736",
-        "css": "\ue749",
-        "sql": "\ue7c4",
-        "sh": "",
-        "pl": "\ue769",
-        "coffee": "\ue751",
-        "c": "\ue61e",
-        "cpp": "\ue61d",
-        "ps1": "\uf489",
-        "bat": "",
-        "xml": "\uf72d",
-        "json": "\ue60b",
-        "vim": "\ue62b",
-        "dir": "\uf114",
-        "zip": "\uf410",
-        "other": "\uf15c"
-    }
-}
 
 reset = colorama.Style.RESET_ALL
 
@@ -68,7 +12,7 @@ reset = colorama.Style.RESET_ALL
 config_file = os.path.expanduser("~/.config/ll/config.json")
 if not os.path.exists(config_file):
     with open(config_file, "w") as f:
-        f.write(json.dumps(default_config, indent=4))
+        f.write(json.dumps(get("https://raw.githubusercontent.com/HACKERqq420/ll/main/.config/ll/config.json"), indent=4))
         f.close()
 else:
     with open(config_file, "r") as f:
@@ -92,26 +36,21 @@ else:
     dir = os.getcwd()
 
 files = []
+bytes = []
 
 for file in os.listdir(dir):
     if config["showHidden"]:
         if file.startswith("."):
             continue
-    if config["showOver30chars"]:
+    if not config["showOver30chars"]:
         if len(file) > 30:
             continue
-    else:
-        files.append(file)
+    files.append(file)
 
-def add_bytes(files):
-    formatted_ffiles = []
-    for i in range(0, len(files)):
-        name = os.path.join(dir, files[i])
-        name_without_dir = files[i]
-        size = colorama.Fore.LIGHTBLUE_EX + str(os.path.getsize(name)) + colorama.Fore.RESET
-        if not len(name_without_dir) > 30:
-            formatted_ffiles.append([size, name_without_dir])
-    return formatted_ffiles
+def get_bytes(file):
+    name = os.path.join(dir, file)
+    size = str(os.path.getsize(name))
+    return size
 
 def info(file):
     name = file
@@ -128,18 +67,23 @@ def info(file):
         formatted_file = f'{color(text=text, style=style, fore=colors["other"])}'
     return formatted_file
 
-ffiles = add_bytes(files)
-formatted_files = []
+# get longest in list
+def get_longest(lst):
+    longest = 0
+    for item in lst:
+        if len(item) > longest:
+            longest = len(item)
+    return longest
 
-for i in range(0, len(ffiles)):
-    formatted_files.append(info(ffiles[i][1]))
-    print(" "*2+formatted_files[i])
+for file in files:
+    bytes.append(str(get_bytes(file)))
+
+padding = get_longest(bytes)
 
 print()
 
-# print()
-# print("\n".join(formatted_files))
-# print()
+for i in range(0, len(files)):
+    bytes_of_files = color(fore=colors["bytes"], text=str(get_bytes(files[i])))
+    print(" "*3 + bytes_of_files + " "*(padding - len(bytes[i]) + 3) + info(files[i]) + reset)
 
-# table = tabulate(formatted_files, tablefmt="plain")
-# print("\n"+table+"\n")
+print()
