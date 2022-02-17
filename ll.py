@@ -84,7 +84,7 @@ padding = get_longest(bytes)
 print()
 
 for i in range(0, len(files)):
-    bytes_of_files = color(fore=colors["bytes"], text=str(get_bytes(files[i])))
+    bytes_of_files = color(fore=colors["bytes"], text=str(bytes[i]))
     print(" "*3 + bytes_of_files + " "*(padding - len(bytes[i]) + 3) + info(files[i]) + reset)
 
 print()
